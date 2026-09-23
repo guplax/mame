@@ -600,6 +600,13 @@ endif
 ifdef TOOLS
 ifneq '$(TOOLS)' '0'
 PARAMS += --with-tools
+# TOOLS=<name>[ <name2> ...] (anything other than the generic '1') also
+# scopes the actual build step to just those tool target(s), e.g.
+# TOOLS=chdman, instead of building all tool projects via the default
+# 'all' goal.
+ifneq '$(TOOLS)' '1'
+BUILD_TARGETS += $(TOOLS)
+endif
 endif
 endif
 
@@ -1167,8 +1174,10 @@ android-ndk:
 ifndef ANDROID_NDK_HOME
 	$(error ANDROID_NDK_HOME is not set)
 endif
+ifneq (,$(findstring --with-emulator,$(PARAMS)))
 ifndef SDL_INSTALL_ROOT
 	$(error SDL_INSTALL_ROOT is not set)
+endif
 endif
 ifeq ($(OS),windows)
 	$(eval CLANG_VERSION := $(shell $(ANDROID_NDK_HOME)/toolchains/llvm/prebuilt/windows-x86_64/bin/clang -dumpversion 2> /dev/null))
@@ -1189,8 +1198,10 @@ $(PROJECTDIR_SDL)/$(MAKETYPE)-android-arm/Makefile: makefile $(SCRIPTS) $(GENIE)
 
 .PHONY: android-arm
 android-arm: android-ndk generate $(PROJECTDIR_SDL)/$(MAKETYPE)-android-arm/Makefile
+ifeq ($(BUILD_TARGETS),)
 	$(SILENT) $(MAKE) $(MAKEPARAMS) -C $(PROJECTDIR_SDL)/$(MAKETYPE)-android-arm config=$(CONFIG) precompile
-	$(SILENT) $(MAKE) $(MAKEPARAMS) -C $(PROJECTDIR_SDL)/$(MAKETYPE)-android-arm config=$(CONFIG)
+endif
+	$(SILENT) $(MAKE) $(MAKEPARAMS) -C $(PROJECTDIR_SDL)/$(MAKETYPE)-android-arm config=$(CONFIG) $(BUILD_TARGETS)
 
 #-------------------------------------------------
 # android-arm64
@@ -1201,8 +1212,10 @@ $(PROJECTDIR_SDL)/$(MAKETYPE)-android-arm64/Makefile: makefile $(SCRIPTS) $(GENI
 
 .PHONY: android-arm64
 android-arm64: android-ndk generate $(PROJECTDIR_SDL)/$(MAKETYPE)-android-arm64/Makefile
+ifeq ($(BUILD_TARGETS),)
 	$(SILENT) $(MAKE) $(MAKEPARAMS) -C $(PROJECTDIR_SDL)/$(MAKETYPE)-android-arm64 config=$(CONFIG) precompile
-	$(SILENT) $(MAKE) $(MAKEPARAMS) -C $(PROJECTDIR_SDL)/$(MAKETYPE)-android-arm64 config=$(CONFIG)
+endif
+	$(SILENT) $(MAKE) $(MAKEPARAMS) -C $(PROJECTDIR_SDL)/$(MAKETYPE)-android-arm64 config=$(CONFIG) $(BUILD_TARGETS)
 
 #-------------------------------------------------
 # android-x86
@@ -1213,8 +1226,10 @@ $(PROJECTDIR_SDL)/$(MAKETYPE)-android-x86/Makefile: makefile $(SCRIPTS) $(GENIE)
 
 .PHONY: android-x86
 android-x86: android-ndk generate $(PROJECTDIR_SDL)/$(MAKETYPE)-android-x86/Makefile
+ifeq ($(BUILD_TARGETS),)
 	$(SILENT) $(MAKE) $(MAKEPARAMS) -C $(PROJECTDIR_SDL)/$(MAKETYPE)-android-x86 config=$(CONFIG) precompile
-	$(SILENT) $(MAKE) $(MAKEPARAMS) -C $(PROJECTDIR_SDL)/$(MAKETYPE)-android-x86 config=$(CONFIG)
+endif
+	$(SILENT) $(MAKE) $(MAKEPARAMS) -C $(PROJECTDIR_SDL)/$(MAKETYPE)-android-x86 config=$(CONFIG) $(BUILD_TARGETS)
 
 #-------------------------------------------------
 # android-x64
@@ -1225,8 +1240,10 @@ $(PROJECTDIR_SDL)/$(MAKETYPE)-android-x64/Makefile: makefile $(SCRIPTS) $(GENIE)
 
 .PHONY: android-x64
 android-x64: android-ndk generate $(PROJECTDIR_SDL)/$(MAKETYPE)-android-x64/Makefile
+ifeq ($(BUILD_TARGETS),)
 	$(SILENT) $(MAKE) $(MAKEPARAMS) -C $(PROJECTDIR_SDL)/$(MAKETYPE)-android-x64 config=$(CONFIG) precompile
-	$(SILENT) $(MAKE) $(MAKEPARAMS) -C $(PROJECTDIR_SDL)/$(MAKETYPE)-android-x64 config=$(CONFIG)
+endif
+	$(SILENT) $(MAKE) $(MAKEPARAMS) -C $(PROJECTDIR_SDL)/$(MAKETYPE)-android-x64 config=$(CONFIG) $(BUILD_TARGETS)
 
 #-------------------------------------------------
 # asmjs / Emscripten
@@ -1255,18 +1272,24 @@ $(PROJECTDIR)/$(MAKETYPE)-linux/Makefile: makefile $(SCRIPTS) $(GENIE)
 
 .PHONY: linux_x64
 linux_x64: generate $(PROJECTDIR)/$(MAKETYPE)-linux/Makefile
+ifeq ($(BUILD_TARGETS),)
 	$(SILENT) $(MAKE) $(MAKEPARAMS) -C $(PROJECTDIR)/$(MAKETYPE)-linux config=$(CONFIG)64 precompile
-	$(SILENT) $(MAKE) $(MAKEPARAMS) -C $(PROJECTDIR)/$(MAKETYPE)-linux config=$(CONFIG)64
+endif
+	$(SILENT) $(MAKE) $(MAKEPARAMS) -C $(PROJECTDIR)/$(MAKETYPE)-linux config=$(CONFIG)64 $(BUILD_TARGETS)
 
 .PHONY: linux_x86
 linux_x86: generate $(PROJECTDIR)/$(MAKETYPE)-linux/Makefile
+ifeq ($(BUILD_TARGETS),)
 	$(SILENT) $(MAKE) $(MAKEPARAMS) -C $(PROJECTDIR)/$(MAKETYPE)-linux config=$(CONFIG)32 precompile
-	$(SILENT) $(MAKE) $(MAKEPARAMS) -C $(PROJECTDIR)/$(MAKETYPE)-linux config=$(CONFIG)32
+endif
+	$(SILENT) $(MAKE) $(MAKEPARAMS) -C $(PROJECTDIR)/$(MAKETYPE)-linux config=$(CONFIG)32 $(BUILD_TARGETS)
 
 .PHONY: linux
 linux: generate $(PROJECTDIR)/$(MAKETYPE)-linux/Makefile
+ifeq ($(BUILD_TARGETS),)
 	$(SILENT) $(MAKE) $(MAKEPARAMS) -C $(PROJECTDIR)/$(MAKETYPE)-linux config=$(CONFIG) precompile
-	$(SILENT) $(MAKE) $(MAKEPARAMS) -C $(PROJECTDIR)/$(MAKETYPE)-linux config=$(CONFIG)
+endif
+	$(SILENT) $(MAKE) $(MAKEPARAMS) -C $(PROJECTDIR)/$(MAKETYPE)-linux config=$(CONFIG) $(BUILD_TARGETS)
 
 #-------------------------------------------------
 # gmake-linux-clang
@@ -1277,18 +1300,24 @@ $(PROJECTDIR)/$(MAKETYPE)-linux-clang/Makefile: makefile $(SCRIPTS) $(GENIE)
 
 .PHONY: linux_x64_clang
 linux_x64_clang: generate $(PROJECTDIR)/$(MAKETYPE)-linux-clang/Makefile
+ifeq ($(BUILD_TARGETS),)
 	$(SILENT) $(MAKE) $(MAKEPARAMS) -C $(PROJECTDIR)/$(MAKETYPE)-linux-clang config=$(CONFIG)64 precompile
-	$(SILENT) $(MAKE) $(MAKEPARAMS) -C $(PROJECTDIR)/$(MAKETYPE)-linux-clang config=$(CONFIG)64
+endif
+	$(SILENT) $(MAKE) $(MAKEPARAMS) -C $(PROJECTDIR)/$(MAKETYPE)-linux-clang config=$(CONFIG)64 $(BUILD_TARGETS)
 
 .PHONY: linux_arm64_clang
 linux_arm64_clang: generate $(PROJECTDIR)/$(MAKETYPE)-linux-clang/Makefile
+ifeq ($(BUILD_TARGETS),)
 	$(SILENT) $(MAKE) $(MAKEPARAMS) -C $(PROJECTDIR)/$(MAKETYPE)-linux-clang config=$(CONFIG)64 precompile
-	$(SILENT) $(MAKE) $(MAKEPARAMS) -C $(PROJECTDIR)/$(MAKETYPE)-linux-clang config=$(CONFIG)64
+endif
+	$(SILENT) $(MAKE) $(MAKEPARAMS) -C $(PROJECTDIR)/$(MAKETYPE)-linux-clang config=$(CONFIG)64 $(BUILD_TARGETS)
 
 .PHONY: linux_x86_clang
 linux_x86_clang: generate $(PROJECTDIR)/$(MAKETYPE)-linux-clang/Makefile
+ifeq ($(BUILD_TARGETS),)
 	$(SILENT) $(MAKE) $(MAKEPARAMS) -C $(PROJECTDIR)/$(MAKETYPE)-linux-clang config=$(CONFIG)32 precompile
-	$(SILENT) $(MAKE) $(MAKEPARAMS) -C $(PROJECTDIR)/$(MAKETYPE)-linux-clang config=$(CONFIG)32
+endif
+	$(SILENT) $(MAKE) $(MAKEPARAMS) -C $(PROJECTDIR)/$(MAKETYPE)-linux-clang config=$(CONFIG)32 $(BUILD_TARGETS)
 
 #-------------------------------------------------
 # gmake-osx

@@ -12,10 +12,12 @@
 #include "osdcore.h"
 #include "osdlib.h"
 
+#if !defined(SDLMAME_ANDROID) && !defined(OSD_NO_CLIPBOARD)
 #ifdef SDLMAME_SDL3
 #include <SDL3/SDL.h>
 #else
 #include <SDL2/SDL.h>
+#endif
 #endif
 
 #include <csignal>
@@ -139,7 +141,7 @@ std::pair<std::error_condition, unsigned> osd_get_cache_line_size() noexcept
 }
 
 
-#ifdef SDLMAME_ANDROID
+#if defined(SDLMAME_ANDROID) || defined(OSD_NO_CLIPBOARD)
 std::string osd_get_clipboard_text() noexcept
 {
 	return std::string();

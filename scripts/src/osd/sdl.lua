@@ -407,6 +407,16 @@ project ("ocore_" .. _OPTIONS["osd"])
 		MAME_DIR .. "src/osd/sdl",
 	}
 
+	if not _OPTIONS["with-emulator"] then
+		-- osdlib_*.cpp's clipboard functions are only reachable from the
+		-- emulator's UI; tools-only (--without-emulator) builds never call
+		-- them, so stub them out and drop the real SDL2/SDL3 dependency
+		-- they otherwise force onto every ocore_sdl translation unit.
+		defines {
+			"OSD_NO_CLIPBOARD",
+		}
+	end
+
 	files {
 		MAME_DIR .. "src/osd/osdcore.cpp",
 		MAME_DIR .. "src/osd/osdcore.h",

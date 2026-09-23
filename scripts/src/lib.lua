@@ -34,7 +34,6 @@ end
 
 	files {
 		MAME_DIR .. "src/lib/util/abi.h",
-		MAME_DIR .. "src/lib/util/aes256cbc.cpp",
 		MAME_DIR .. "src/lib/util/aes256cbc.h",
 		MAME_DIR .. "src/lib/util/avhuff.cpp",
 		MAME_DIR .. "src/lib/util/avhuff.h",
@@ -103,7 +102,6 @@ end
 		MAME_DIR .. "src/lib/util/msdib.cpp",
 		MAME_DIR .. "src/lib/util/msdib.h",
 		MAME_DIR .. "src/lib/util/multibyte.h",
-		MAME_DIR .. "src/lib/util/nanosvg.cpp",
 		MAME_DIR .. "src/lib/util/nanosvg.h",
 		MAME_DIR .. "src/lib/util/notifier.h",
 		MAME_DIR .. "src/lib/util/opresolv.cpp",
@@ -149,3 +147,15 @@ end
 		MAME_DIR .. "src/lib/util/zippath.cpp",
 		MAME_DIR .. "src/lib/util/zippath.h",
 	}
+
+-- aes256cbc.cpp and nanosvg.cpp are only reachable from emu/device code
+-- (driver decryption and .lay/artwork SVG rendering respectively); none
+-- of the command-line tools (chdman included) call into them. Skip them,
+-- and the corresponding 3rdparty/aes256cbc and 3rdparty/nanosvg
+-- dependencies, for tools-only (--without-emulator) builds.
+if _OPTIONS["with-emulator"] then
+	files {
+		MAME_DIR .. "src/lib/util/aes256cbc.cpp",
+		MAME_DIR .. "src/lib/util/nanosvg.cpp",
+	}
+end
